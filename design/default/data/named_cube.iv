@@ -1,0 +1,7 @@
+#Inventor V2.1 ascii
+
+Separator {
+  DEF Group Separator {
+    DEF Body Cube { }
+  }
+}

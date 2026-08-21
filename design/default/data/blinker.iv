@@ -1,0 +1,20 @@
+#Inventor V2.1 ascii
+
+Separator {
+  PerspectiveCamera {
+    position 0 0 6
+    nearDistance 0.01
+    farDistance 100
+  }
+  DirectionalLight {
+    direction 0.2 -1 -0.5
+  }
+  Material { diffuseColor 0.3 0.8 0.55 }
+  Blinker {
+    speed 0.5
+    Cube { }
+    Sphere { }
+    Cone { }
+    Cylinder { }
+  }
+}

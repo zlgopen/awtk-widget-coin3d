@@ -1,0 +1,11 @@
+# Small deterministic scenes for COMPAT ↔ GL3 parity.
+models/dead_simple/cube.iv
+models/dead_simple/rotated_cube.iv
+models/dead_simple/sphere.iv
+models/dead_simple/cone.iv
+models/dead_simple/material.iv
+models/dead_simple/texture2.iv
+models/dead_simple/text2.iv
+models/dead_simple/indexedfaceset.iv
+models/oiv_compliance/directionallight.iv
+models/oiv_compliance/clipplane.iv

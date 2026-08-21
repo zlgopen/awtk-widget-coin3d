@@ -1,0 +1,29 @@
+#Inventor V2.1 ascii
+
+Separator {
+  PerspectiveCamera {
+    position 0 2 12
+    nearDistance 0.01
+    farDistance 100
+  }
+  DirectionalLight {
+    direction 0.2 -1 -0.5
+  }
+
+  Separator {
+    Material {
+      diffuseColor 1 0.82 0.2
+      emissiveColor 0.45 0.28 0.02
+    }
+    Sphere { radius 1.15 }
+  }
+
+  Rotor {
+    rotation 0 1 0  0.05
+    speed 0.18
+    on TRUE
+  }
+  Translation { translation 3.8 0 0 }
+  Material { diffuseColor 0.2 0.5 0.95 }
+  Sphere { radius 0.4 }
+}

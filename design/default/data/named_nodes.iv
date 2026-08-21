@@ -1,0 +1,28 @@
+#Inventor V2.1 ascii
+
+Separator {
+  DEF box Separator {
+    Transform {
+      translation 0 0 0
+    }
+    Material { diffuseColor 0.9 0.3 0.25 }
+    Cube { }
+  }
+  DEF ball Separator {
+    Transform {
+      translation 2.5 0 0
+    }
+    Material { diffuseColor 0.25 0.7 0.95 }
+    Sphere { }
+  }
+  DEF ball Separator {
+    Transform {
+      translation -2.5 0 0
+    }
+    Material { diffuseColor 0.25 0.7 0.95 }
+    Sphere { }
+  }
+  DEF mover Transform {
+    translation 2 0 0
+  }
+}

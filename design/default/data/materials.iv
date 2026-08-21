@@ -1,0 +1,43 @@
+#Inventor V2.1 ascii
+
+Separator {
+  PerspectiveCamera {
+    position 0 0 8
+    nearDistance 0.01
+    farDistance 100
+  }
+  DirectionalLight {
+    direction 0.2 -1 -0.5
+  }
+
+  Separator {
+    Translation { translation -2.4 0 0 }
+    Material {
+      ambientColor 0.05 0.05 0.05
+      diffuseColor 0.8 0.15 0.15
+      specularColor 0.2 0.2 0.2
+      shininess 0.1
+    }
+    Sphere { }
+  }
+  Separator {
+    Material {
+      ambientColor 0.15 0.15 0.15
+      diffuseColor 0.7 0.7 0.75
+      specularColor 1 1 1
+      shininess 0.9
+    }
+    Sphere { }
+  }
+  Separator {
+    Translation { translation 2.4 0 0 }
+    Material {
+      ambientColor 0.1 0.15 0.2
+      diffuseColor 0.2 0.45 0.7
+      specularColor 0.9 0.95 1
+      shininess 0.8
+      transparency 0.35
+    }
+    Sphere { }
+  }
+}

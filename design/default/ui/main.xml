@@ -1,0 +1,17 @@
+<window theme="main" >
+  <coin3d name="coin3d" x="c" y="10" w="90%" h="-100" model="rotating_cube.iv" background="#1e2430"
+    focusable="true" focused="true" gizmo="true" translation="0,0,0" rotation="20,30" scale="8"/>
+  <combo_box_ex name="models" x="10" y="b:50" w="280" h="30" readonly="true" value="0"
+    options="rotating_cube.iv;cube.iv;cone.iv;sphere.iv;cylinder.iv;primitives.iv;include_files.iv;include_stl.iv;materials.iv;color_cube.iv;textured_cube.iv;wireframe.iv;ground_grid.iv;pyramid.stl;pyramid_binary.stl;color_pyramid.stl;viscam_pyramid.stl;shuttle.iv;pendulum.iv;blinker.iv;solar.iv;robot.iv;named_nodes.iv;named_cube.iv;bird.iv;desk.iv;dogDish.iv;duck.iv;eatAtJosies.iv;flower.iv;flowerPath.iv;jumpyMan.iv;luxo.iv;monitor.iv;parkbench.iv;star.iv;temple.iv;windmillTower.iv;windmillVanes.iv"/>
+  <button name="close" text="Close" x="r:10" y="b:50" w="80" h="30"/>
+  <button name="pan_left" text="PanL" x="10" y="b:10" w="52" h="30"/>
+  <button name="pan_right" text="PanR" x="66" y="b:10" w="52" h="30"/>
+  <button name="pan_up" text="PanU" x="122" y="b:10" w="52" h="30"/>
+  <button name="pan_down" text="PanD" x="178" y="b:10" w="52" h="30"/>
+  <button name="rot_x_pos" text="RotX+" x="240" y="b:10" w="58" h="30"/>
+  <button name="rot_x_neg" text="RotX-" x="302" y="b:10" w="58" h="30"/>
+  <button name="rot_y_pos" text="RotY+" x="364" y="b:10" w="58" h="30"/>
+  <button name="rot_y_neg" text="RotY-" x="426" y="b:10" w="58" h="30"/>
+  <button name="zoom_in" text="Zoom+" x="494" y="b:10" w="62" h="30"/>
+  <button name="zoom_out" text="Zoom-" x="560" y="b:10" w="62" h="30"/>
+</window>

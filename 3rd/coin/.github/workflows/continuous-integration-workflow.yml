@@ -1,0 +1,170 @@
+name: Continuous Integration Build
+
+on:
+  workflow_dispatch:  # Allow manual triggers
+  pull_request:
+    branches: [ master ]
+  #push:
+  #  branches: [ master ]
+
+jobs:
+  ubuntu-build:
+    name: Ubuntu Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Create build directory and run CMake
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install freeglut3-dev libboost-dev
+          cmake -S . -B cmake_build_dir -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=cmake_install_dir
+      - name: Build project
+        run: cmake --build cmake_build_dir --target install --config Release -- -j4
+      - name: Run tests
+        run:  ctest -C Release -VV
+        working-directory: cmake_build_dir
+      - name: Create Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ubuntu-Artifacts
+          path: cmake_install_dir/
+        if: always()
+
+  ubuntu-gl3-build:
+    name: Ubuntu GL3 Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Configure GL3 Core build
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install freeglut3-dev libboost-dev
+          cmake -S . -B cmake_build_gl3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCOIN_GL_PROFILE=GL3
+      - name: Build GL3 Core backend
+        run: cmake --build cmake_build_gl3 --config Release --target Coin -- -j4
+
+  ubuntu-glparity:
+    name: Ubuntu COMPAT GL3 Parity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install parity dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install freeglut3-dev libboost-dev libglfw3-dev xvfb mesa-utils fonts-dejavu-core pkg-config libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxinerama-dev libxss-dev libgl1-mesa-dev libgl1-mesa-dri
+      - name: Build and install SDL3
+        run: |
+          curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.2.10/SDL3-3.2.10.tar.gz | tar xz
+          cmake -S SDL3-3.2.10 -B sdl3-build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/sdl3-prefix"
+          cmake --build sdl3-build -j4
+          cmake --install sdl3-build
+          export CMAKE_PREFIX_PATH="$HOME/sdl3-prefix${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+          echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> "$GITHUB_ENV"
+      - name: Build COMPAT parity renderer
+        run: |
+          cmake -S . -B cmake_build_compat -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCOIN_GL_PROFILE=COMPAT -DCOIN_BUILD_EXAMPLES=ON -DCOIN_BUILD_TESTS=OFF
+          cmake --build cmake_build_compat --config Release --target glparity-render -- -j4
+      - name: Build GL3 parity renderer
+        run: |
+          cmake -S . -B cmake_build_gl3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCOIN_GL_PROFILE=GL3 -DCOIN_BUILD_EXAMPLES=ON -DCOIN_BUILD_TESTS=OFF
+          cmake --build cmake_build_gl3 --config Release --target glparity-render -- -j4
+      - name: Run COMPAT GL3 parity suite
+        run: |
+          xvfb-run -a tools/glparity/run_parity.sh \
+            --compat "$PWD/cmake_build_compat/bin/glparity-render" \
+            --gl3 "$PWD/cmake_build_gl3/bin/glparity-render" \
+            --scenes tools/glparity/scenes_p0.txt \
+            --output glparity-out
+      - name: Upload parity failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: glparity-out
+          path: glparity-out/
+
+  ubuntu-gles-build:
+    name: Ubuntu GLES3 + GLES2 Stub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install GLES/EGL deps
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install freeglut3-dev libboost-dev libgles2-mesa-dev libegl1-mesa-dev
+      - name: Configure and build GLES3
+        run: |
+          cmake -S . -B cmake_build_gles3 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCOIN_GL_PROFILE=GLES3 -DCOIN_BUILD_TESTS=OFF -DCOIN_BUILD_EXAMPLES=OFF
+          cmake --build cmake_build_gles3 --config Release --target Coin -- -j4
+      - name: Configure and build GLES2 stub
+        run: |
+          cmake -S . -B cmake_build_gles2 -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCOIN_GL_PROFILE=GLES2 -DCOIN_BUILD_TESTS=OFF -DCOIN_BUILD_EXAMPLES=OFF
+          cmake --build cmake_build_gles2 --config Release --target Coin -- -j4
+
+  windows-build:
+    name: Windows Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Create build directory and run CMake
+        shell: cmd
+        run: |
+          mkdir cmake_download_dir
+          set DOWNLOAD_FILE_BOOST=boost_1_78_0-bin-msvc-14.3-64.7z
+          for /f %%i in ('curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/coin3d/coin/releases ^| jq -r --arg COIN_REPO_TAG_NAME "CI-builds" ".[] | select(.tag_name==$COIN_REPO_TAG_NAME) | .id"') do set RELEASE_ID=%%i
+          for /f %%i in ('curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/coin3d/coin/releases/%RELEASE_ID% ^| jq -r --arg DOWNLOAD_FILE_BOOST "%DOWNLOAD_FILE_BOOST%" ".assets[] | select(.name==$DOWNLOAD_FILE_BOOST) | .id"') do set ASSET_ID=%%i
+          set DOWNLOAD_ADDRESS_BOOST=https://api.github.com/repos/coin3d/coin/releases/assets/%ASSET_ID%
+          echo download file %DOWNLOAD_FILE_BOOST% from address %DOWNLOAD_ADDRESS_BOOST%
+          curl -s -S -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" -o %DOWNLOAD_FILE_BOOST% %DOWNLOAD_ADDRESS_BOOST%
+          7z x %DOWNLOAD_FILE_BOOST% -ocmake_download_dir
+          cmake -S . -B cmake_build_dir -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=cmake_install_dir -DCMAKE_PREFIX_PATH=cmake_download_dir/boost_1_78_0 -DBoost_DIR=cmake_download_dir/boost_1_78_0/lib64-msvc-14.3/cmake/Boost-1.78.0
+      - name: Build project
+        run: cmake --build cmake_build_dir --target INSTALL --config Release -- /nologo /verbosity:minimal /maxcpucount:2 /property:MultiProcessorCompilation=true
+      - name: Run tests
+        run:  ctest -C Release -VV
+        working-directory: cmake_build_dir
+      - name: Create Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Artifacts
+          path: cmake_install_dir/
+        if: always()
+
+  macos-build:
+    name: MacOS Build
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Create build directory and run CMake
+        run: |
+          brew install boost
+          cmake -S . -B cmake_build_dir -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=cmake_install_dir -DCMAKE_CXX_STANDARD=11
+      - name: Build project
+        run: cmake --build cmake_build_dir --target install --config Release -- -j4
+      - name: Run tests
+        run:  ctest -C Release -VV
+        working-directory: cmake_build_dir
+      - name: Create Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MacOS-Artifacts
+          path: cmake_install_dir/
+        if: always()
+        

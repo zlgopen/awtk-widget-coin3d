@@ -1,0 +1,32 @@
+#Inventor V2.1 ascii
+
+Separator {
+  PerspectiveCamera {
+    position 0 0 12
+    nearDistance 0.01
+    farDistance 100
+  }
+  DirectionalLight {
+    direction 0.2 -1 -0.5
+  }
+
+  Separator {
+    Translation { translation -3.6 0 0 }
+    Scale { scaleFactor 0.9 0.9 0.9 }
+    File { name "pyramid.stl" }
+  }
+  Separator {
+    Translation { translation -1.2 0 0 }
+    File { name "color_pyramid.stl" }
+  }
+  Separator {
+    Translation { translation 1.2 0 0 }
+    Scale { scaleFactor 0.9 0.9 0.9 }
+    File { name "pyramid_binary.stl" }
+  }
+  Separator {
+    Translation { translation 3.6 0 0 }
+    Material { diffuseColor 0.95 0.75 0.2 }
+    File { name "cube.iv" }
+  }
+}
