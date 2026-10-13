@@ -1,5 +1,8 @@
 # 最新动态
 
+2026/10/13
+  * 修复了 MinGW 无法编译的问题(感谢雪飞提供补丁)
+
 2026/8/21
   * Coin GLES3：系统头已声明的 glReadBuffer 不再包 static stub，修复 Ubuntu 编译失败。
   * Coin GL3：Linux 桌面补 VBO/glGetStringi 原型，修复 Ubuntu 22 编译失败。
